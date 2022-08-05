@@ -1,0 +1,22 @@
+spring:
+  kafka:
+    consumer:
+      auto-offset-reset: earliest
+      group-id: color-messages
+    listener:
+      type: batch
+
+  mongodb:
+    embedded:
+      version: 4.0.21
+
+test:
+  topic: color-messages-test-topic
+
+monitor:
+  kafka:
+    bootstrap:
+      config: "PLAINTEXT://localhost:9085"
+#    consumer:
+#      groupid: "color-messagesGrp"
+
