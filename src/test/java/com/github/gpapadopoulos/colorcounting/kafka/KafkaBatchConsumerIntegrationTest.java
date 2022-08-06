@@ -1,6 +1,7 @@
 package com.github.gpapadopoulos.colorcounting.kafka;
 
 import com.github.gpapadopoulos.colorcounting.ColorCountingApplication;
+import com.github.gpapadopoulos.colorcounting.config.KafkaProducerConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -14,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 import org.springframework.test.annotation.DirtiesContext;
@@ -30,10 +32,11 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 @RunWith(SpringRunner.class)
-@Import(KafkaBatchConsumerIntegrationTest.KafkaTestContainersConfiguration.class)
+// @Import(KafkaBatchConsumerIntegrationTest.KafkaTestContainersConfiguration.class)
 @SpringBootTest(classes = ColorCountingApplication.class)
 @DirtiesContext
 @Testcontainers
+// @Profile("test")
 class KafkaBatchConsumerIntegrationTest {
 
     @Container
@@ -65,19 +68,19 @@ class KafkaBatchConsumerIntegrationTest {
         boolean messageConsumed = consumer.getLatch().await(10, TimeUnit.SECONDS);
         assertTrue(messageConsumed);
         assertTrue(!consumer.getAllMessages().isEmpty(), "Should have received at least one message");
-        // TODO Not a very good test
-        assertTrue(consumer.getAllMessages().size() <= KafkaTestContainersConfiguration.batchSize,
-                   String.format("Should have received at most %d messages, instead got %d",
-                                 KafkaTestContainersConfiguration.batchSize,
-                                 consumer.getAllMessages().size()));
+        // // TODO Not a very good test
+        // assertTrue(consumer.getAllMessages().size() <= KafkaTestContainersConfiguration.maxRecords,
+        //            String.format("Should have received at most %d messages, instead got %d",
+        //                          KafkaTestContainersConfiguration.maxRecords,
+        //                          consumer.getAllMessages().size()));
 
         // assertEquals(data, consumer.getAllMessages());
     }
 
     @TestConfiguration
-    static class KafkaTestContainersConfiguration {
+    static class KafkaTestContainersConfiguration extends KafkaProducerConsumerConfig {
 
-        private static final int batchSize = 5;
+        private static final int maxRecords = 5;
 
         @Bean
         public ConcurrentKafkaListenerContainerFactory<Integer, String> kafkaListenerContainerFactory() {
@@ -103,7 +106,7 @@ class KafkaBatchConsumerIntegrationTest {
             props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 
             // props.put(ConsumerConfig.GROUP_ID_CONFIG, "batch");
-            props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, batchSize);
+            props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxRecords);
             return props;
         }
 

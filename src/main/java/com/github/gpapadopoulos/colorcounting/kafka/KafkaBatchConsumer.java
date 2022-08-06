@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 @Service
-class KafkaBatchConsumer {
+public class KafkaBatchConsumer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaBatchConsumer.class);
 

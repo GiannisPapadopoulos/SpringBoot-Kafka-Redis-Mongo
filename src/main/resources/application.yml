@@ -9,6 +9,9 @@ spring:
   mvc:
     pathmatch:
       :matching-strategy: ant_path_matcher
+  data:
+    rest:
+      base-path: /api
   mongodb:
     embedded:
       version: 4.0.21
@@ -16,10 +19,11 @@ spring:
 test:
   topic: color-messages-test-topic
 
+
+
 monitor:
   kafka:
     bootstrap:
       config: "PLAINTEXT://localhost:9085"
-#    consumer:
-#      groupid: "color-messagesGrp"
 
+#spring.mvc.pathmatch.matching-strategy=ant_path_matcher
