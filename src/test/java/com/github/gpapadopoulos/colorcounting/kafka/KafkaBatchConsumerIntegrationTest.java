@@ -13,12 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.*;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -32,8 +32,9 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 @RunWith(SpringRunner.class)
-// @Import(KafkaBatchConsumerIntegrationTest.KafkaTestContainersConfiguration.class)
-@SpringBootTest(classes = ColorCountingApplication.class)
+@Import(KafkaBatchConsumerIntegrationTest.KafkaTestContainersConfiguration.class)
+// @SpringBootTest(classes = ColorCountingApplication.class)
+@SpringBootTest()
 @DirtiesContext
 @Testcontainers
 // @Profile("test")
@@ -82,6 +83,7 @@ class KafkaBatchConsumerIntegrationTest {
 
         private static final int maxRecords = 5;
 
+        @Primary
         @Bean
         public ConcurrentKafkaListenerContainerFactory<Integer, String> kafkaListenerContainerFactory() {
             ConcurrentKafkaListenerContainerFactory<Integer, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
@@ -125,4 +127,5 @@ class KafkaBatchConsumerIntegrationTest {
         }
 
     }
+
 }
