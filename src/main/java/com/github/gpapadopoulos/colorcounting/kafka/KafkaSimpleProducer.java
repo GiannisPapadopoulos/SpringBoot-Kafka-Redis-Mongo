@@ -11,8 +11,11 @@ public class KafkaSimpleProducer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaSimpleProducer.class);
 
-    @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplate;
+
+    public KafkaSimpleProducer(KafkaTemplate<String, String> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
+    }
 
     public void send(String topic, String payload) {
         LOGGER.info("sending payload='{}' to topic='{}'", payload, topic);
