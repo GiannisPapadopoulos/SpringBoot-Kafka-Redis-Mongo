@@ -33,8 +33,7 @@ import static org.junit.Assert.assertEquals;
 @Testcontainers
 class RedisRepositoryIntegrationTest {
 
-    @Container
-    public static KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:6.2.1"));
+    private static final Logger logger = LoggerFactory.getLogger(RedisRepositoryIntegrationTest.class);
 
     @Container
     public static GenericContainer<?> redis =
@@ -45,30 +44,12 @@ class RedisRepositoryIntegrationTest {
 
     @Test
     void savingAndRetrievingColor() {
-        // System.out.println(redis.isRunning() + " " + redis.getFirstMappedPort());
-        System.out.println(redis.getMappedPort(6379));
-        // System.out.println(redis.getFirstMappedPort());
         final Color color = new Color("07c6850e-ae0a-4aa9-b4c8-3b06a0ea47fd", "red");
         colorRepository.save(color);
         Color retrievedColor = colorRepository.findById(color.getId()).get();
         assertEquals(color.getId(), retrievedColor.getId());
         assertEquals(color.getColor(), retrievedColor.getColor());
     }
-
-    // @DynamicPropertySource
-    // static void registerProperties(DynamicPropertyRegistry registry) {
-    //     registry.add("spring.redis.url", () -> String.format(
-    //             "redis://%s:%s",
-    //             redis.getHost(),
-    //             redis.getMappedPort(6379)
-    //     ));
-    // }
-    // @DynamicPropertySource
-    // static void registerProperties(DynamicPropertyRegistry registry) {
-    //     registry.add("spring.redis.port", () -> redis.getFirstMappedPort());
-    // }
-
-    private static final Logger logger = LoggerFactory.getLogger(RedisRepositoryIntegrationTest.class);
 
     @DynamicPropertySource
     static void databaseProperties(DynamicPropertyRegistry registry) {
