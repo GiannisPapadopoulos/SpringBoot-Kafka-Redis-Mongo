@@ -17,7 +17,6 @@ import org.springframework.data.redis.serializer.GenericToStringSerializer;
 @Configuration
 @ComponentScan("com.github.gpapadopoulos.colorcounting.redis")
 @EnableRedisRepositories(basePackages = "com.github.gpapadopoulos.colorcounting.redis.repo")
-@PropertySource("classpath:application.properties")
 public class RedisConfig {
 
     @Value("${spring.redis.port}")

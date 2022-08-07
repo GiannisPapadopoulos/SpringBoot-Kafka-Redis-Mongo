@@ -5,24 +5,21 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "/statistics")
 public class AggregateColorsController {
 
-    private final AggregateStatisticsService aggregateService;
+    private final AggregateStatisticsService statisticsService;
 
-    public AggregateColorsController(AggregateStatisticsService aggregateService) {
-        this.aggregateService = aggregateService;
+    public AggregateColorsController(AggregateStatisticsService statisticsService) {
+        this.statisticsService = statisticsService;
     }
 
     @GetMapping(value = "/aggregate-messages")
     public String custom() {
-        Map<String, Long> collect = aggregateService.getColorCounts();
+        Map<String, Long> collect = statisticsService.getColorCounts();
         return collect.toString();
     }
 }

@@ -1,6 +1,5 @@
 package com.github.gpapadopoulos.colorcounting.kafka;
 
-import com.github.gpapadopoulos.colorcounting.ColorCountingApplication;
 import com.github.gpapadopoulos.colorcounting.config.KafkaProducerConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -17,8 +16,6 @@ import org.springframework.context.annotation.*;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -33,11 +30,9 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 @RunWith(SpringRunner.class)
 @Import(KafkaBatchConsumerIntegrationTest.KafkaTestContainersConfiguration.class)
-// @SpringBootTest(classes = ColorCountingApplication.class)
 @SpringBootTest()
 @DirtiesContext
 @Testcontainers
-// @Profile("test")
 class KafkaBatchConsumerIntegrationTest {
 
     @Container
@@ -68,14 +63,7 @@ class KafkaBatchConsumerIntegrationTest {
 
         boolean messageConsumed = consumer.getLatch().await(10, TimeUnit.SECONDS);
         assertTrue(messageConsumed);
-        assertTrue(!consumer.getAllMessages().isEmpty(), "Should have received at least one message");
-        // // TODO Not a very good test
-        // assertTrue(consumer.getAllMessages().size() <= KafkaTestContainersConfiguration.maxRecords,
-        //            String.format("Should have received at most %d messages, instead got %d",
-        //                          KafkaTestContainersConfiguration.maxRecords,
-        //                          consumer.getAllMessages().size()));
-
-        // assertEquals(data, consumer.getAllMessages());
+        // TODO How to test that the messages are actually consumed in batches?
     }
 
     @TestConfiguration
@@ -125,7 +113,6 @@ class KafkaBatchConsumerIntegrationTest {
         public KafkaTemplate<String, String> kafkaTemplate() {
             return new KafkaTemplate<>(producerFactory());
         }
-
     }
 
 }

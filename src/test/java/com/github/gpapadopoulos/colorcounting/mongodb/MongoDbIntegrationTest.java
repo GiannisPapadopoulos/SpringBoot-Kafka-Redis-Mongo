@@ -14,13 +14,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -34,7 +31,7 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ColorCountingApplication.class)
-@Import(MongoDbIntegrationTest.MongoestContainersConfiguration.class)
+@Import(MongoDbIntegrationTest.MongoDbContainersConfiguration.class)
 // @SpringBootTest()
 @DirtiesContext
 @Testcontainers
@@ -59,7 +56,7 @@ class MongoDbIntegrationTest {
 
     @TestConfiguration
     @EnableMongoRepositories(basePackages = { "com.github.gpapadopoulos.colorcounting.mongodb.repo" })
-    static class MongoestContainersConfiguration extends AbstractMongoClientConfiguration {
+    static class MongoDbContainersConfiguration extends AbstractMongoClientConfiguration {
 
         @Override
         protected String getDatabaseName() {

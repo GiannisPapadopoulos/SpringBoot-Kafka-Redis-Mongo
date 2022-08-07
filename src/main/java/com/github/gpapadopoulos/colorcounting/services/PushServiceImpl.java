@@ -32,14 +32,18 @@ public class PushServiceImpl implements PushService {
 
     @Override
     public void push(String color) {
+        logger.info("Pushing to cache");
         colorRepository.save(new Color(color));
         colorDocumentRepository.save(new ColorDocument(color));
+
         threadPool.submit(() -> colorDocumentRepository.save(new ColorDocument(color)));
     }
 
     @Override
     public void pushAll(Collection<String> colorMessages) {
+        logger.info("Pushing to cache");
         colorRepository.saveAll(colorMessages.stream().map(m -> new Color(m)).collect(Collectors.toList()));
+        logger.info("Submitting task for writing to the database");
         threadPool.submit(() -> {
             colorDocumentRepository.saveAll(
                     colorMessages.stream()

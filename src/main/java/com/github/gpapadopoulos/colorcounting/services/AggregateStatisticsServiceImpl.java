@@ -27,7 +27,8 @@ public class AggregateStatisticsServiceImpl implements  AggregateStatisticsServi
         ArrayList<Color> repoColors = new ArrayList<>();
         colorRepository.findAll().forEach(repoColors::add);
 
-        Map<String, Long> aggregated = repoColors.stream().collect(Collectors.groupingBy(c -> c.getColor(), Collectors.counting()));
-        return aggregated;
+        Map<String, Long> frequencyMap = repoColors.stream().collect(Collectors.groupingBy(c -> c.getColor(), Collectors.counting()));
+        logger.info("Returning counts: " + frequencyMap );
+        return frequencyMap;
     }
 }
