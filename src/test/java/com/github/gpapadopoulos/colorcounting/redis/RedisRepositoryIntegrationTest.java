@@ -1,7 +1,6 @@
 package com.github.gpapadopoulos.colorcounting.redis;
 
 import com.github.gpapadopoulos.colorcounting.ColorCountingApplication;
-import com.github.gpapadopoulos.colorcounting.kafka.controllers.KafkaProducerController;
 import com.github.gpapadopoulos.colorcounting.redis.model.Color;
 import com.github.gpapadopoulos.colorcounting.redis.repo.ColorRepository;
 import org.junit.jupiter.api.Test;
@@ -37,7 +36,7 @@ class RedisRepositoryIntegrationTest {
 
     @Container
     public static GenericContainer<?> redis =
-            new GenericContainer<>(DockerImageName.parse("redis:5.0.3-alpine")).withExposedPorts(6379); // .waitingFor(Wait.forHealthcheck())
+            new GenericContainer<>(DockerImageName.parse("redis:alpine")).withExposedPorts(6379); // .waitingFor(Wait.forHealthcheck())
 
     @Autowired
     private ColorRepository colorRepository;

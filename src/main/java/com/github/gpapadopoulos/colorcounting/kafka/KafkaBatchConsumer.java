@@ -2,7 +2,7 @@ package com.github.gpapadopoulos.colorcounting.kafka;
 
 import com.github.gpapadopoulos.colorcounting.redis.model.Color;
 import com.github.gpapadopoulos.colorcounting.redis.repo.ColorRepository;
-import com.github.gpapadopoulos.colorcounting.redis.service.ColorRepositoryService;
+import com.github.gpapadopoulos.colorcounting.services.PushService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +23,10 @@ public class KafkaBatchConsumer {
     private CountDownLatch latch = new CountDownLatch(1);
     private List<String> allMessages = new ArrayList<>();
 
-    private final ColorRepositoryService colorService;
+    private final PushService pushService;
 
-    public KafkaBatchConsumer(ColorRepositoryService colorService) {
-        this.colorService = colorService;
+    public KafkaBatchConsumer(PushService pushService) {
+        this.pushService = pushService;
     }
 
     @KafkaListener(topics = "color-messages-test-topic")
@@ -35,7 +35,7 @@ public class KafkaBatchConsumer {
         allMessages.addAll(messages);
 
         // colorRepo.saveAll(colors);
-        colorService.saveAll(messages);
+        pushService.pushAll(messages);
         latch.countDown();
     }
 
