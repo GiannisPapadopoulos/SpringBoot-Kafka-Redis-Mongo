@@ -9,12 +9,12 @@ spring:
   mvc:
     pathmatch:
       :matching-strategy: ant_path_matcher
-  data:
-    rest:
-      base-path: /api
   mongodb:
     embedded:
       version: 4.0.21
+  redis:
+    host: localhost
+    port: 6379
 
 test:
   topic: color-messages-test-topic
