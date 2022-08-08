@@ -22,7 +22,6 @@ public class SendColorMessageController {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
 
-
     String status;
 
     @Value(value = "${test.topic}")

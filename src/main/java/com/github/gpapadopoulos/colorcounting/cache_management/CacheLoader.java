@@ -25,7 +25,6 @@ public class CacheLoader {
     @PostConstruct
     private void init() {
         logger.info("Populating redis cache from backup");
-        // colorRepository.deleteAll();
         colorRepository.saveAll(() -> colorDocumentRepository.findAll()
                 .stream()
                 .iterator());

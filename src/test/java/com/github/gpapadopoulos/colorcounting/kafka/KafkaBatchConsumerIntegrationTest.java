@@ -71,7 +71,7 @@ class KafkaBatchConsumerIntegrationTest {
 
         data.forEach(m -> producer.send(topic, m));
 
-        boolean messageConsumed = consumer.getLatch().await(10, TimeUnit.SECONDS);
+        boolean messageConsumed = consumer.getLatch().await(20, TimeUnit.SECONDS);
         assertTrue(messageConsumed);
         // TODO How to test that the messages are actually consumed in batches?
     }
@@ -106,9 +106,6 @@ class KafkaBatchConsumerIntegrationTest {
             props.put(ConsumerConfig.GROUP_ID_CONFIG, "color-messages");
             props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
             props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-            props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 2000);
-
-            // props.put(ConsumerConfig.GROUP_ID_CONFIG, "batch");
             props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxRecords);
             return props;
         }

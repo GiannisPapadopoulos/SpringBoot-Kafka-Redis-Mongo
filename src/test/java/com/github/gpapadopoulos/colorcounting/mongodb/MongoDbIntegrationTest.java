@@ -34,7 +34,6 @@ import static org.junit.Assert.assertEquals;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ColorCountingApplication.class)
 @Import(MongoDbIntegrationTest.MongoDbContainersConfiguration.class)
-// @SpringBootTest()
 @DirtiesContext
 @Testcontainers
 class MongoDbIntegrationTest {
