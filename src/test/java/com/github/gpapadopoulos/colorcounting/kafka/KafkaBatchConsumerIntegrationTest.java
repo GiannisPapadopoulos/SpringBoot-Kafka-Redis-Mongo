@@ -32,13 +32,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static org.assertj.core.api.Assertions.not;
-import static org.assertj.core.api.BDDAssertions.then;
-import static org.awaitility.Awaitility.waitAtMost;
 import static org.junit.jupiter.api.Assertions.*;
 @RunWith(SpringRunner.class)
 @Import(KafkaBatchConsumerIntegrationTest.KafkaTestContainersConfiguration.class)
-// @SpringBootTest()
 @DirtiesContext
 @Testcontainers
 @SpringBootTest(classes = {ColorCountingApplication.class, KafkaBatchConsumerIntegrationTest.KafkaTestContainersConfiguration.class })
