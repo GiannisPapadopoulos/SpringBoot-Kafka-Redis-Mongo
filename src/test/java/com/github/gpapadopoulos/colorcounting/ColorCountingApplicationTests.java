@@ -1,6 +1,7 @@
 package com.github.gpapadopoulos.colorcounting;
 
-import com.github.gpapadopoulos.colorcounting.config.KafkaProducerConsumerConfig;
+import com.github.gpapadopoulos.colorcounting.kafka.config.KafkaProducerConsumerConfig;
+import com.github.gpapadopoulos.colorcounting.mongodb.repo.ColorDocumentRepository;
 import com.github.gpapadopoulos.colorcounting.redis.model.Color;
 import com.github.gpapadopoulos.colorcounting.redis.repo.ColorRepository;
 import com.github.gpapadopoulos.colorcounting.services.AggregateStatisticsService;
@@ -70,6 +71,8 @@ class ColorCountingApplicationTests {
 
 	@Autowired
 	private ColorRepository colorRepository;
+	@Autowired
+	private ColorDocumentRepository colorDocumentRepository;
 
 	@Autowired
 	private AggregateStatisticsService statisticsService;
@@ -94,9 +97,14 @@ class ColorCountingApplicationTests {
 			then(messages.size()).isEqualTo(StreamSupport.stream(colorRepository.findAll().spliterator(), false)
 					.collect(Collectors.toList()).size());
 		});
-		List<Color> cacheColors = StreamSupport.stream(colorRepository.findAll().spliterator(), false).collect(Collectors.toList());
+		waitAtMost(5, TimeUnit.SECONDS).untilAsserted(() -> {
+			then(messages.size()).isEqualTo(StreamSupport.stream(colorRepository.findAll().spliterator(), false)
+					.collect(Collectors.toList()).size());
+		});
+		List<Color> cacheColors = StreamSupport.stream(colorRepository.findAll().spliterator(), false).toList();
 
-		assertEquals(messages.size(), cacheColors.size());
+		assertEquals(messages.size(), cacheColors.size(), "Message and cache size should be equal");
+		assertEquals(messages.size(), colorDocumentRepository.count(), "Cache and database size should be equal");
 		assertEquals(messageCounts, statisticsService.getColorCounts());
 	}
 
@@ -176,7 +184,7 @@ class ColorCountingApplicationTests {
 		}
 
 		@Override
-		public Collection getMappingBasePackages() {
+		public Collection<String> getMappingBasePackages() {
 			return Collections.singleton("com.github.gpapadopoulos.colorcounting.mongodb");
 		}
 	}

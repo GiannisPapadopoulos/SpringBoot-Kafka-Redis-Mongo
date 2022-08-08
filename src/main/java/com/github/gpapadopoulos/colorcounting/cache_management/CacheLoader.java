@@ -1,16 +1,12 @@
 package com.github.gpapadopoulos.colorcounting.cache_management;
 
 import com.github.gpapadopoulos.colorcounting.mongodb.repo.ColorDocumentRepository;
-import com.github.gpapadopoulos.colorcounting.redis.model.Color;
 import com.github.gpapadopoulos.colorcounting.redis.repo.ColorRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Component
 public class CacheLoader {

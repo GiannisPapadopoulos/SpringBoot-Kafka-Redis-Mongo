@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,7 +26,7 @@ public class AggregateStatisticsServiceImpl implements  AggregateStatisticsServi
         ArrayList<Color> repoColors = new ArrayList<>();
         colorRepository.findAll().forEach(repoColors::add);
 
-        Map<String, Long> frequencyMap = repoColors.stream().collect(Collectors.groupingBy(c -> c.getColor(), Collectors.counting()));
+        Map<String, Long> frequencyMap = repoColors.stream().collect(Collectors.groupingBy(Color::getColor, Collectors.counting()));
         logger.info("Returning counts: " + frequencyMap );
         return frequencyMap;
     }

@@ -1,7 +1,7 @@
 package com.github.gpapadopoulos.colorcounting.kafka;
 
 import com.github.gpapadopoulos.colorcounting.ColorCountingApplication;
-import com.github.gpapadopoulos.colorcounting.config.KafkaProducerConsumerConfig;
+import com.github.gpapadopoulos.colorcounting.kafka.config.KafkaProducerConsumerConfig;
 import com.github.gpapadopoulos.colorcounting.kafka.testBeans.KafkaBatchConsumerWithLatch;
 import com.github.gpapadopoulos.colorcounting.kafka.testBeans.DoNothingPushService;
 import com.github.gpapadopoulos.colorcounting.cache_management.CacheLoader;
@@ -69,7 +69,7 @@ class KafkaBatchConsumerIntegrationTest {
     void messagesAreConsumedInBatches() throws InterruptedException {
         var data = Arrays.asList("red", "green", "red");
 
-        data.forEach(m -> template.send(topic, m));
+        data.forEach(m -> producer.send(topic, m));
 
         boolean messageConsumed = consumer.getLatch().await(10, TimeUnit.SECONDS);
         assertTrue(messageConsumed);
