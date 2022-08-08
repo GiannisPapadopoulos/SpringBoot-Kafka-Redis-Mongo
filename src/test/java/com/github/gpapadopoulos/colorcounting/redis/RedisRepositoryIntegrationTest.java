@@ -29,8 +29,6 @@ import static org.junit.Assert.assertEquals;
 @Testcontainers
 class RedisRepositoryIntegrationTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(RedisRepositoryIntegrationTest.class);
-
     @Container
     public static GenericContainer<?> redis =
             new GenericContainer<>(DockerImageName.parse("redis:alpine")).withExposedPorts(6379); // .waitingFor(Wait.forHealthcheck())
@@ -52,10 +50,6 @@ class RedisRepositoryIntegrationTest {
 
     @DynamicPropertySource
     static void databaseProperties(DynamicPropertyRegistry registry) {
-        logger.info("Override properties to connect to Testcontainers:");
-        logger.info("* Test-Container 'Redis': spring.redis.host = {} ; spring.redis.port = {}",
-                redis.getHost(), redis.getMappedPort(6379));
-
         registry.add("spring.redis.host", redis::getHost);
         registry.add("spring.redis.port", () -> redis.getMappedPort(6379));
     }

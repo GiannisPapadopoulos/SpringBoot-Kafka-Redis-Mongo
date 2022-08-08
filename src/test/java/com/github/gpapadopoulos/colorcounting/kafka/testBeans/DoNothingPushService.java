@@ -11,11 +11,9 @@ public class DoNothingPushService implements PushService {
 
     @Override
     public void push(String color) {
-        logger.info("Mocking");
     }
 
     @Override
     public void pushAll(Collection<String> colorMessages) {
-        logger.info("Mocking");
     }
 }
