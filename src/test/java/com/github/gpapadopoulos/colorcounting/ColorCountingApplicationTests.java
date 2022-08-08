@@ -48,11 +48,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @RunWith(SpringRunner.class)
 @Import({com.github.gpapadopoulos.colorcounting.ColorCountingApplicationTests.KafkaTestContainersConfiguration.class,
 		com.github.gpapadopoulos.colorcounting.ColorCountingApplicationTests.MongoDbContainersConfiguration.class})
-// @SpringBootTest(classes = ColorCountingApplication.class)
 @SpringBootTest()
 @DirtiesContext
 @Testcontainers
-// @Profile("test")
 class ColorCountingApplicationTests {
 
 	@Container
@@ -77,11 +75,11 @@ class ColorCountingApplicationTests {
 	private AggregateStatisticsService statisticsService;
 
 	@Test
-	void contextLoads() {
+	void context_ShouldLoad() {
 	}
 
 	@Test
-	void sendSomeMessages_ThenFrequencesShouldBeCorrect() {
+	void sendSomeMessages_ThenFrequenciesShouldBeCorrect() {
 		Map<String, Long> messageCounts = Map.of(
 				"red", 10L,
 				"green", 5L,

@@ -1,6 +1,7 @@
 package com.github.gpapadopoulos.colorcounting.redis;
 
 import com.github.gpapadopoulos.colorcounting.ColorCountingApplication;
+import com.github.gpapadopoulos.colorcounting.cache_management.CacheLoader;
 import com.github.gpapadopoulos.colorcounting.redis.model.Color;
 import com.github.gpapadopoulos.colorcounting.redis.repo.ColorRepository;
 import org.junit.jupiter.api.Test;
@@ -9,19 +10,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.stereotype.Service;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.testcontainers.containers.FixedHostPortGenericContainer;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.KafkaContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
-import scala.Product;
 
 import static org.junit.Assert.assertEquals;
 
@@ -40,6 +37,9 @@ class RedisRepositoryIntegrationTest {
 
     @Autowired
     private ColorRepository colorRepository;
+
+    @MockBean
+    private CacheLoader loader;
 
     @Test
     void savingAndRetrievingColor() {

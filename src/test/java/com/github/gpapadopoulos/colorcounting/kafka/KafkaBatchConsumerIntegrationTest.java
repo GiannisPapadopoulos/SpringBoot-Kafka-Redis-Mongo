@@ -1,6 +1,11 @@
 package com.github.gpapadopoulos.colorcounting.kafka;
 
+import com.github.gpapadopoulos.colorcounting.ColorCountingApplication;
 import com.github.gpapadopoulos.colorcounting.config.KafkaProducerConsumerConfig;
+import com.github.gpapadopoulos.colorcounting.kafka.testBeans.KafkaBatchConsumerWithLatch;
+import com.github.gpapadopoulos.colorcounting.kafka.testBeans.DoNothingPushService;
+import com.github.gpapadopoulos.colorcounting.cache_management.CacheLoader;
+import com.github.gpapadopoulos.colorcounting.services.PushService;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -12,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.*;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
@@ -30,9 +36,10 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 @RunWith(SpringRunner.class)
 @Import(KafkaBatchConsumerIntegrationTest.KafkaTestContainersConfiguration.class)
-@SpringBootTest()
+// @SpringBootTest()
 @DirtiesContext
 @Testcontainers
+@SpringBootTest(classes = {ColorCountingApplication.class, KafkaBatchConsumerIntegrationTest.KafkaTestContainersConfiguration.class })
 class KafkaBatchConsumerIntegrationTest {
 
     @Container
@@ -42,13 +49,16 @@ class KafkaBatchConsumerIntegrationTest {
     public KafkaTemplate<String, String> template;
 
     @Autowired
-    private KafkaBatchConsumer consumer;
+    private KafkaBatchConsumerWithLatch consumer;
 
     @Autowired
     private KafkaSimpleProducer producer;
 
     @Value("${test.topic}")
     private String topic;
+
+    @MockBean
+    private CacheLoader loader;
 
     @BeforeEach
     void setUp() {
@@ -57,7 +67,7 @@ class KafkaBatchConsumerIntegrationTest {
 
     @Test
     void messagesAreConsumedInBatches() throws InterruptedException {
-        var data = Arrays.asList("Message1", "message2", "message3", "m4", "m5", "m6");
+        var data = Arrays.asList("red", "green", "red");
 
         data.forEach(m -> template.send(topic, m));
 
@@ -82,8 +92,10 @@ class KafkaBatchConsumerIntegrationTest {
         }
 
         @Bean
-        public ConsumerFactory<Integer, String> consumerFactory() {
-            return new DefaultKafkaConsumerFactory<>(consumerConfigs());
+        @Primary
+        public PushService pushService()
+        {
+            return new DoNothingPushService();
         }
 
         @Bean
@@ -112,6 +124,26 @@ class KafkaBatchConsumerIntegrationTest {
         @Bean
         public KafkaTemplate<String, String> kafkaTemplate() {
             return new KafkaTemplate<>(producerFactory());
+        }
+
+        @Bean
+        // @Primary
+        public KafkaBatchConsumer batchConsumer()
+        {
+            return new KafkaBatchConsumerWithLatch(pushService());
+        }
+
+        @Bean
+        @Primary
+        public KafkaBatchConsumerWithLatch batchConsumerWithLatch()
+        {
+            return new KafkaBatchConsumerWithLatch(pushService());
+        }
+
+
+        @Bean
+        public ConsumerFactory<Integer, String> consumerFactory() {
+            return new DefaultKafkaConsumerFactory<>(consumerConfigs());
         }
     }
 

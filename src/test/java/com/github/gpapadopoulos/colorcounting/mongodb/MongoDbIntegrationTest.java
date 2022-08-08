@@ -3,6 +3,7 @@ package com.github.gpapadopoulos.colorcounting.mongodb;
 import com.github.gpapadopoulos.colorcounting.ColorCountingApplication;
 import com.github.gpapadopoulos.colorcounting.mongodb.model.ColorDocument;
 import com.github.gpapadopoulos.colorcounting.mongodb.repo.ColorDocumentRepository;
+import com.github.gpapadopoulos.colorcounting.cache_management.CacheLoader;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
@@ -44,6 +46,9 @@ class MongoDbIntegrationTest {
 
     @Autowired
     private ColorDocumentRepository colorDocumentRepository;
+
+    @MockBean
+    private CacheLoader loader;
 
     @Test
     void savingAndRetrievingColor() {
