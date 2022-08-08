@@ -8,6 +8,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Component
 public class CacheLoader {
@@ -23,11 +26,28 @@ public class CacheLoader {
     }
 
     @PostConstruct
-    private void init() {
+    public void init() {
         logger.info("Populating redis cache from backup");
-        colorRepository.deleteAll();
-        colorRepository.saveAll(() -> colorDocumentRepository.findAll().stream().map(colorDocument -> new Color(colorDocument.getColor())).iterator());
-        logger.info("Loaded redis cache");
+        logger.warn("before " + StreamSupport.stream(colorRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList()).size());
+        // colorRepository.deleteAll();
+        logger.warn("then " + StreamSupport.stream(colorRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList()).size());
+        colorRepository.saveAll(() -> colorDocumentRepository.findAll().stream().map(colorDocument -> new Color(colorDocument.getId(), colorDocument.getColor())).iterator());
+        var all = colorDocumentRepository.findAll();
+        logger.warn("Found " + colorDocumentRepository.findAll().size());
+        logger.warn("Added " + StreamSupport.stream(colorRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList()).size());
+
+        logger.warn("mongo " + StreamSupport.stream(colorDocumentRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList()));
+        logger.warn("redis " + StreamSupport.stream(colorRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList()));
+    }
+
+    @PreDestroy
+    private void shutdown() {
+        System.out.println("Shutdown All Resources");
     }
 
 

@@ -1,9 +1,9 @@
 package com.github.gpapadopoulos.colorcounting.mongodb;
 
 import com.github.gpapadopoulos.colorcounting.ColorCountingApplication;
-import com.github.gpapadopoulos.colorcounting.mongodb.model.ColorDocument;
 import com.github.gpapadopoulos.colorcounting.mongodb.repo.ColorDocumentRepository;
 import com.github.gpapadopoulos.colorcounting.cache_management.CacheLoader;
+import com.github.gpapadopoulos.colorcounting.redis.model.Color;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
@@ -52,9 +52,9 @@ class MongoDbIntegrationTest {
 
     @Test
     void savingAndRetrievingColor() {
-        final ColorDocument color = new ColorDocument("62ef93c3fc6f9f0cf9c6ea2e", "red");
+        final Color color = new Color("62ef93c3fc6f9f0cf9c6ea2e", "red");
         colorDocumentRepository.save(color);
-        ColorDocument retrievedColor = colorDocumentRepository.findById(color.getId()).get();
+        Color retrievedColor = colorDocumentRepository.findById(color.getId()).get();
         assertEquals(color.getId(), retrievedColor.getId());
         assertEquals(color.getColor(), retrievedColor.getColor());
     }

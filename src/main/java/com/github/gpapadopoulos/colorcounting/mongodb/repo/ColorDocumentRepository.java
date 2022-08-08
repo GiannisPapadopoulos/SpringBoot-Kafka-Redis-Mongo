@@ -1,9 +1,6 @@
 package com.github.gpapadopoulos.colorcounting.mongodb.repo;
 
-import com.github.gpapadopoulos.colorcounting.mongodb.model.ColorDocument;
+import com.github.gpapadopoulos.colorcounting.redis.model.Color;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.Query;
 
-import java.util.List;
-
-public interface ColorDocumentRepository extends MongoRepository<ColorDocument, String> { }
+public interface ColorDocumentRepository extends MongoRepository<Color, String> { }
