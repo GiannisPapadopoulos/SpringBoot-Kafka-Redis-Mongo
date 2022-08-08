@@ -108,7 +108,6 @@ class ColorCountingApplicationTests {
 		assertEquals(messageCounts, statisticsService.getColorCounts());
 	}
 
-
 	@DynamicPropertySource
 	static void redisProperties(DynamicPropertyRegistry registry) {
 		registry.add("spring.redis.host", redis::getHost);
@@ -117,8 +116,6 @@ class ColorCountingApplicationTests {
 
 	@TestConfiguration
 	static class KafkaTestContainersConfiguration extends KafkaProducerConsumerConfig {
-
-		private static final int maxRecords = 5;
 
 		@Primary
 		@Bean
@@ -144,8 +141,6 @@ class ColorCountingApplicationTests {
 			props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 			props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 
-			// props.put(ConsumerConfig.GROUP_ID_CONFIG, "batch");
-			props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxRecords);
 			return props;
 		}
 

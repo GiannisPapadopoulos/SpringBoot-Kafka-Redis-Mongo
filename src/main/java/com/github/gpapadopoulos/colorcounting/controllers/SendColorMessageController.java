@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 // Provided for testing
 @RestController
 @RequestMapping(path = "/producer")
-public class GetColorMessageController {
+public class SendColorMessageController {
 
-    private static final Logger logger = LoggerFactory.getLogger(GetColorMessageController.class);
+    private static final Logger logger = LoggerFactory.getLogger(SendColorMessageController.class);
 
     private final KafkaTemplate<String, String> kafkaTemplate;
 
@@ -28,7 +28,7 @@ public class GetColorMessageController {
     @Value(value = "${test.topic}")
     private String kafkaTopicName;
 
-    public GetColorMessageController(KafkaTemplate<String, String> kafkaTemplate) {
+    public SendColorMessageController(KafkaTemplate<String, String> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 
