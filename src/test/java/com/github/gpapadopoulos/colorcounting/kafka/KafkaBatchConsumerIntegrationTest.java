@@ -2,8 +2,6 @@ package com.github.gpapadopoulos.colorcounting.kafka;
 
 import com.github.gpapadopoulos.colorcounting.ColorCountingApplication;
 import com.github.gpapadopoulos.colorcounting.kafka.config.KafkaProducerConsumerConfig;
-import com.github.gpapadopoulos.colorcounting.kafka.testBeans.KafkaBatchConsumerWithLatch;
-import com.github.gpapadopoulos.colorcounting.kafka.testBeans.DoNothingPushService;
 import com.github.gpapadopoulos.colorcounting.cache_management.CacheLoader;
 import com.github.gpapadopoulos.colorcounting.services.PushService;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -22,6 +20,7 @@ import org.springframework.context.annotation.*;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.NestedTestConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -33,6 +32,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static org.assertj.core.api.Assertions.not;
+import static org.assertj.core.api.BDDAssertions.then;
+import static org.awaitility.Awaitility.waitAtMost;
 import static org.junit.jupiter.api.Assertions.*;
 @RunWith(SpringRunner.class)
 @Import(KafkaBatchConsumerIntegrationTest.KafkaTestContainersConfiguration.class)
@@ -49,7 +51,7 @@ class KafkaBatchConsumerIntegrationTest {
     public KafkaTemplate<String, String> template;
 
     @Autowired
-    private KafkaBatchConsumerWithLatch consumer;
+    private KafkaBatchConsumer consumer;
 
     @Autowired
     private KafkaSimpleProducer producer;
@@ -60,6 +62,10 @@ class KafkaBatchConsumerIntegrationTest {
     @MockBean
     private CacheLoader loader;
 
+    @MockBean
+    private PushService pushService;
+
+
     @BeforeEach
     void setUp() {
         consumer.resetLatch(1);
@@ -69,7 +75,8 @@ class KafkaBatchConsumerIntegrationTest {
     void messagesAreConsumedInBatches() throws InterruptedException {
         var data = Arrays.asList("red", "green", "red");
 
-        data.forEach(m -> producer.send(topic, m));
+        consumer.resetLatch(1);
+        data.forEach(m -> template.send(topic, m));
 
         boolean messageConsumed = consumer.getLatch().await(20, TimeUnit.SECONDS);
         assertTrue(messageConsumed);
@@ -77,9 +84,10 @@ class KafkaBatchConsumerIntegrationTest {
     }
 
     @TestConfiguration
+    @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
     static class KafkaTestContainersConfiguration extends KafkaProducerConsumerConfig {
 
-        private static final int maxRecords = 5;
+        private static final int maxRecords = 2;
 
         @Primary
         @Bean
@@ -87,15 +95,7 @@ class KafkaBatchConsumerIntegrationTest {
             ConcurrentKafkaListenerContainerFactory<Integer, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
             factory.setConsumerFactory(consumerFactory());
             factory.setBatchListener(true);
-            // factory.getContainerProperties().setBatchErrorHandler(new BatchLoggingErrorHandler());
             return factory;
-        }
-
-        @Bean
-        @Primary
-        public PushService pushService()
-        {
-            return new DoNothingPushService();
         }
 
         @Bean
@@ -106,7 +106,7 @@ class KafkaBatchConsumerIntegrationTest {
             props.put(ConsumerConfig.GROUP_ID_CONFIG, "color-messages");
             props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
             props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-            props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxRecords);
+            props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG , maxRecords);
             return props;
         }
 
@@ -125,24 +125,11 @@ class KafkaBatchConsumerIntegrationTest {
         }
 
         @Bean
-        // @Primary
-        public KafkaBatchConsumer batchConsumer()
-        {
-            return new KafkaBatchConsumerWithLatch(pushService());
-        }
-
-        @Bean
-        @Primary
-        public KafkaBatchConsumerWithLatch batchConsumerWithLatch()
-        {
-            return new KafkaBatchConsumerWithLatch(pushService());
-        }
-
-
-        @Bean
         public ConsumerFactory<Integer, String> consumerFactory() {
             return new DefaultKafkaConsumerFactory<>(consumerConfigs());
         }
+
+
     }
 
 }

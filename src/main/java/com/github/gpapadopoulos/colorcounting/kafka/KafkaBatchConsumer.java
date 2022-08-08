@@ -7,6 +7,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 @Service
 public class KafkaBatchConsumer {
@@ -15,14 +16,24 @@ public class KafkaBatchConsumer {
 
     private final PushService pushService;
 
+    private CountDownLatch latch = new CountDownLatch(1);
+
     public KafkaBatchConsumer(PushService pushService) {
         this.pushService = pushService;
     }
 
     @KafkaListener(topics = "${test.topic}")
     public void consumeBatchOfMessages(List<String> messages) {
-        logger.info("Got messages : {}", messages);
+        logger.info("Got messages : {} this: {}", messages, this.getClass());
         pushService.pushAll(messages);
+        latch.countDown();
+    }
+    public void resetLatch(int count) {
+        latch = new CountDownLatch(count);
+    }
+
+    public CountDownLatch getLatch() {
+        return latch;
     }
 
 }
