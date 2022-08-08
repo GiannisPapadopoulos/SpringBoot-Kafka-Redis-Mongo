@@ -98,8 +98,34 @@ class ColorCountingApplicationTests {
 					.collect(Collectors.toList()).size());
 		});
 		waitAtMost(5, TimeUnit.SECONDS).untilAsserted(() -> {
+			then(messages.size()).isEqualTo(colorDocumentRepository.count());
+
+		});
+		List<Color> cacheColors = StreamSupport.stream(colorRepository.findAll().spliterator(), false).toList();
+
+		assertEquals(messages.size(), cacheColors.size(), "Message and cache size should be equal");
+		assertEquals(messages.size(), colorDocumentRepository.count(), "Cache and database size should be equal");
+		assertEquals(messageCounts, statisticsService.getColorCounts());
+	}
+
+	@Test
+	void sendThousandsOfMessages_ThenFrequenciesShouldBeCorrect() {
+		Map<String, Long> messageCounts = Map.of(
+				"red", 800L,
+				"green", 600L,
+				"blue", 400L,
+				"white", 300L
+		);
+		List<String> messages = new ArrayList<>();
+		messageCounts.forEach((color, count) -> messages.addAll(Collections.nCopies(Math.toIntExact(count), color)));
+		messages.forEach(m -> template.send(topic, m));
+
+		waitAtMost(30, TimeUnit.SECONDS).untilAsserted(() -> {
 			then(messages.size()).isEqualTo(StreamSupport.stream(colorRepository.findAll().spliterator(), false)
 					.collect(Collectors.toList()).size());
+		});
+		waitAtMost(30, TimeUnit.SECONDS).untilAsserted(() -> {
+			then(messages.size()).isEqualTo(colorDocumentRepository.count());
 		});
 		List<Color> cacheColors = StreamSupport.stream(colorRepository.findAll().spliterator(), false).toList();
 
@@ -140,6 +166,7 @@ class ColorCountingApplicationTests {
 			props.put(ConsumerConfig.GROUP_ID_CONFIG, "color-messages");
 			props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 			props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+			props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 2000);
 
 			return props;
 		}

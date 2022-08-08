@@ -106,6 +106,7 @@ class KafkaBatchConsumerIntegrationTest {
             props.put(ConsumerConfig.GROUP_ID_CONFIG, "color-messages");
             props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
             props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+            props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 2000);
 
             // props.put(ConsumerConfig.GROUP_ID_CONFIG, "batch");
             props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxRecords);
