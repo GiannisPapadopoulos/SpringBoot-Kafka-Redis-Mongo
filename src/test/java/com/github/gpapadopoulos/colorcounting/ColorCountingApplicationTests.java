@@ -13,6 +13,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -84,6 +85,13 @@ class ColorCountingApplicationTests {
 	@Autowired
 	RedisCacheService redisCache;
 
+
+	@BeforeEach
+	void setup() {
+		redisCache.findAll().forEach(c -> redisCache.delete(c));
+		colorDocumentRepository.deleteAll();
+	}
+
 	@Test
 	void sendSomeMessages_ThenFrequenciesShouldBeCorrect() {
 		Map<String, Long> messageCounts = Map.of(
@@ -91,6 +99,44 @@ class ColorCountingApplicationTests {
 				"green", 5L,
 				"blue", 20L,
 				"white", 7L
+		);
+
+		List<String> messages = new ArrayList<>();
+		messageCounts.forEach((color, count) -> messages.addAll(Collections.nCopies(Math.toIntExact(count), color)));
+		logger.info("Sending " + messages.size());
+		messages.forEach(m -> template.send(topic, m));
+
+		waitAtMost(5, TimeUnit.SECONDS).untilAsserted(() -> then(messages.size()).isEqualTo(redisCache.count()));
+
+		waitAtMost(5, TimeUnit.SECONDS).untilAsserted(() -> {
+			then(messages.size()).isEqualTo(colorDocumentRepository.count());
+		});
+		List<String> cacheColors = new ArrayList<>();
+		redisCache.findAll().forEach(cacheColors::add);
+
+		List<Color> mongoColors = colorDocumentRepository.findAll();
+
+		assertEquals(messages.size(), cacheColors.size(), "Message and cache size should be equal");
+		assertEquals(messages.size(), mongoColors.size(), "Cache and database size should be equal");
+		assertEquals(messageCounts, statisticsService.getColorCounts(), "Incorrect color counts reported by the service");
+
+		Map<String, Long> redisCounts = redisCache.findAll().stream().collect(
+				Collectors.groupingBy(Function.identity(), Collectors.counting()));
+		Map<String, Long> mongoCounts = colorDocumentRepository.findAll().stream().collect(
+				Collectors.groupingBy(color -> color.getColor(), Collectors.counting()));
+
+		assertEquals(messageCounts, redisCounts, "Incorrect color counts on the cache");
+		assertEquals(messageCounts, mongoCounts, "Incorrect color counts on the database");
+	}
+
+	@Test
+	void sendSomeMessages_ThenFrequenciesShouldBeCorrect_LargeVolume() {
+		long multiplier = 1000;
+		Map<String, Long> messageCounts = Map.of(
+				"red", 2L * multiplier,
+				"green", 4L * multiplier,
+				"blue", 1L * multiplier,
+				"white", 3L * multiplier
 		);
 
 		List<String> messages = new ArrayList<>();

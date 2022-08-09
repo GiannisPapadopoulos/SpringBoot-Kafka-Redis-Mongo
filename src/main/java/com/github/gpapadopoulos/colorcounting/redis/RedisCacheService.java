@@ -33,6 +33,10 @@ public class RedisCacheService {
         return redisStringTemplate.opsForList().size(hashKey);
     }
 
+    public void delete(String color) {
+        redisStringTemplate.opsForList().remove(hashKey, 1, color);
+    }
+
     public List<String> findAll() {
         List<String> values = redisStringTemplate.opsForList().range(hashKey, 0, -1);
         return values;
