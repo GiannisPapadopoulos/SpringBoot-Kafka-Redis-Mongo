@@ -1,10 +1,10 @@
 package com.github.gpapadopoulos.colorcounting.services;
 
-import java.util.Collection;
+import java.util.List;
 
 public interface PushService {
 
     void push(String color);
 
-    void pushAll(Collection<String> colorMessages);
+    void pushAll(List<String> colorMessages);
 }

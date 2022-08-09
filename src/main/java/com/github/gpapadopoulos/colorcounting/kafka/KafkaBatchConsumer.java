@@ -24,7 +24,7 @@ public class KafkaBatchConsumer {
 
     @KafkaListener(topics = "${test.topic}")
     public void consumeBatchOfMessages(List<String> messages) {
-        logger.info("Got messages : {} ", messages);
+        logger.info("Consuming batch: {}", messages.size());
         pushService.pushAll(messages);
         latch.countDown();
     }
