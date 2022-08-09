@@ -2,8 +2,8 @@ package com.github.gpapadopoulos.colorcounting.cache_management;
 
 import com.github.gpapadopoulos.colorcounting.ColorCountingApplication;
 import com.github.gpapadopoulos.colorcounting.mongodb.repo.ColorDocumentRepository;
+import com.github.gpapadopoulos.colorcounting.redis.RedisCacheService;
 import com.github.gpapadopoulos.colorcounting.redis.model.Color;
-import com.github.gpapadopoulos.colorcounting.redis.repo.ColorRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -22,9 +22,10 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 import java.util.Arrays;
-import java.util.Set;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -43,23 +44,25 @@ class CacheLoaderTest {
 
     // @MockBean
     @Autowired
-    private ColorRepository colorRepository;
+    private RedisCacheService redisCache;
 
     @Autowired
     private ColorDocumentRepository colorDocumentRepository;
 
     @Test
     void whenLoadingFromMongo_thenRedisCache_ShouldMatch() {
-        Set<String> database = colorDocumentRepository.findAll()
+        List<String> databaseColors = colorDocumentRepository.findAll()
                 .stream()
-                .map(color -> color.getId())
-                .collect(Collectors.toSet());
+                .map(color -> color.getColor())
+                .collect(Collectors.toList());
 
-        Set<String> cache = StreamSupport.stream(colorRepository.findAll().spliterator(), false)
-                .map(color -> color.getId())
-                .collect(Collectors.toSet());
+        Map<String, Long> redisCounts = redisCache.findAll().stream().collect(
+                Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        Map<String, Long> mongoCounts = colorDocumentRepository.findAll().stream().collect(
+                Collectors.groupingBy(color -> color.getColor(), Collectors.counting()));
 
-        assertEquals(database, cache, "Database and cache ids should match");
+        assertEquals(mongoCounts, redisCounts, "Color counts in the database and cache should be equal");
+
     }
 
     @DynamicPropertySource

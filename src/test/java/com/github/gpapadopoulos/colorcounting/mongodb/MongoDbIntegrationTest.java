@@ -1,9 +1,9 @@
 package com.github.gpapadopoulos.colorcounting.mongodb;
 
-import com.github.gpapadopoulos.colorcounting.ColorCountingApplication;
-import com.github.gpapadopoulos.colorcounting.mongodb.repo.ColorDocumentRepository;
 import com.github.gpapadopoulos.colorcounting.cache_management.CacheLoader;
+import com.github.gpapadopoulos.colorcounting.mongodb.repo.ColorDocumentRepository;
 import com.github.gpapadopoulos.colorcounting.redis.model.Color;
+import com.github.gpapadopoulos.colorcounting.services.PushService;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
@@ -14,12 +14,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.NestedTestConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -32,7 +32,7 @@ import java.util.Collections;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = ColorCountingApplication.class)
+@SpringBootTest()
 @Import(MongoDbIntegrationTest.MongoDbContainersConfiguration.class)
 @DirtiesContext
 @Testcontainers
@@ -49,6 +49,9 @@ class MongoDbIntegrationTest {
     @MockBean
     private CacheLoader loader;
 
+    @MockBean
+    private PushService pushService;
+
     @Test
     void savingAndRetrievingColor() {
         final Color color = new Color("62ef93c3fc6f9f0cf9c6ea2e", "red");
@@ -58,7 +61,7 @@ class MongoDbIntegrationTest {
         assertEquals(color.getColor(), retrievedColor.getColor());
     }
 
-    @TestConfiguration
+    @NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.INHERIT)
     @EnableMongoRepositories(basePackages = { "com.github.gpapadopoulos.colorcounting.mongodb.repo" })
     static class MongoDbContainersConfiguration extends AbstractMongoClientConfiguration {
 

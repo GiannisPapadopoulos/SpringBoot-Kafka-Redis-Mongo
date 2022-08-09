@@ -2,8 +2,6 @@ package com.github.gpapadopoulos.colorcounting.redis;
 
 import com.github.gpapadopoulos.colorcounting.ColorCountingApplication;
 import com.github.gpapadopoulos.colorcounting.cache_management.CacheLoader;
-import com.github.gpapadopoulos.colorcounting.redis.model.Color;
-import com.github.gpapadopoulos.colorcounting.redis.repo.ColorRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +16,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ColorCountingApplication.class)
@@ -32,18 +30,18 @@ class RedisRepositoryIntegrationTest {
             new GenericContainer<>(DockerImageName.parse("redis:alpine")).withExposedPorts(6379); // .waitingFor(Wait.forHealthcheck())
 
     @Autowired
-    private ColorRepository colorRepository;
+    private RedisCacheService redisCache;
 
     @MockBean
     private CacheLoader loader;
 
     @Test
     void savingAndRetrievingColor() {
-        final Color color = new Color("07c6850e-ae0a-4aa9-b4c8-3b06a0ea47fd", "red");
-        colorRepository.save(color);
-        Color retrievedColor = colorRepository.findById(color.getId()).get();
-        assertEquals(color.getId(), retrievedColor.getId());
-        assertEquals(color.getColor(), retrievedColor.getColor());
+        final String color = "red";
+        redisCache.save(color);
+        var allColors = redisCache.findAll();
+        assertTrue("Color should be in cache", allColors.contains(color));
+
     }
 
     @DynamicPropertySource
