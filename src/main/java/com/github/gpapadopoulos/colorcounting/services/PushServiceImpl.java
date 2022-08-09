@@ -44,9 +44,7 @@ public class PushServiceImpl implements PushService {
         var cached = colorRepository.saveAll(colorMessages.stream().map(m -> new Color(m)).collect(Collectors.toList()));
         logger.info("Submitting task for writing to the database");
         threadPool.submit(() -> {
-            colorDocumentRepository.saveAll(
-                    StreamSupport.stream(colorRepository.findAll().spliterator(), false)
-                            .collect(Collectors.toList()));
+            colorDocumentRepository.saveAll(cached);
         });
     }
 }
